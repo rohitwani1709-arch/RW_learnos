@@ -35,7 +35,7 @@ export default async function CoursePage({ params, searchParams }: Props) {
       <div className="mt-6">
         {sp.error && <p role="alert" className="mb-3 text-red-700">Enrollment failed. Try again.</p>}
         {enrolled ? (
-          <p role="status" className="font-medium text-green-800">You are enrolled in this course.</p>
+             <p role="status" className="font-medium text-green-800">You are enrolled in this course. <Link href="/my-learning" className="underline">Go to My learning</Link></p>
         ) : user ? (
           <form action={enroll}>
             <input type="hidden" name="courseId" value={course.id} />
