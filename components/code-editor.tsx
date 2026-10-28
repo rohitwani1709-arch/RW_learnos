@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useTransition } from "react";
+import { useState, useSyncExternalStore, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Editor from "@monaco-editor/react";
 import { runCode } from "@/lib/execution/actions";
@@ -11,6 +11,14 @@ const STARTER = `def solve(numbers):
 print(solve([3, 9, 2, 7]))
 `;
 
+const DARK_QUERY = "(prefers-color-scheme: dark)";
+function subscribeToScheme(onChange: () => void) {
+  const m = window.matchMedia(DARK_QUERY);
+  m.addEventListener("change", onChange);
+  return () => m.removeEventListener("change", onChange);
+}
+const currentTheme = () => (window.matchMedia(DARK_QUERY).matches ? "vs-dark" : "light");
+
 export type HistoryItem = { id: string; created_at: string; status: string; source_code: string };
 
 export function CodeEditor({ configured, history }: { configured: boolean; history: HistoryItem[] }) {
@@ -19,8 +27,7 @@ export function CodeEditor({ configured, history }: { configured: boolean; histo
   const [stdin, setStdin] = useState("");
   const [result, setResult] = useState<RunResult | null>(null);
   const [pending, start] = useTransition();
-  const [theme, setTheme] = useState("vs-dark");
-  useEffect(() => { setTheme(window.matchMedia("(prefers-color-scheme: dark)").matches ? "vs-dark" : "light"); }, []);
+  const theme = useSyncExternalStore(subscribeToScheme, currentTheme, () => "vs-dark");
 
   function run() {
     setResult(null);
